@@ -1,19 +1,21 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
+  "functions": {
+    "api/supporters.js": {
+      "runtime": "nodejs18.x"
     }
-  ],
+  },
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "src": "/api/supporters",
+      "dest": "/api/supporters.js"
+    },
+    {
+      "src": "/api/supporters/(.*)",
+      "dest": "/api/supporters.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/public/$1"
     }
   ]
 }
