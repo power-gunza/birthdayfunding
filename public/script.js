@@ -1,7 +1,7 @@
 // 전역 변수
 let totalAmount = 0;
 let supporterCount = 0;
-const targetAmount = 500000;
+const targetAmount = 1000000; // 100만원으로 변경
 
 // 페이지 로드시 초기화
 document.addEventListener('DOMContentLoaded', function() {
@@ -38,10 +38,14 @@ function updateStats() {
     document.getElementById('progressFill').style.width = percentage + '%';
     document.getElementById('progressPercent').textContent = Math.round(percentage) + '%';
 
-    // 목표 달성 체크
-    updateGoalStatus(1, 200000);
-    updateGoalStatus(2, 300000);
-    updateGoalStatus(3, 500000);
+    // 목표 달성 체크 (7개 목표)
+    updateGoalStatus(1, 100000);   // 10만원: 목어깨 마사지기
+    updateGoalStatus(2, 200000);   // 20만원: 가누다 경추베개
+    updateGoalStatus(3, 300000);   // 30만원: 앰프
+    updateGoalStatus(4, 400000);   // 40만원: 다이슨 에어랩
+    updateGoalStatus(5, 500000);   // 50만원: 로봇청소기
+    updateGoalStatus(6, 700000);   // 70만원: 닌텐도 스위치2
+    updateGoalStatus(7, 1000000);  // 100만원: 스피커
 }
 
 // 목표 달성 상태 업데이트
@@ -247,7 +251,7 @@ function handleImageUpload(event) {
 
 // 네비게이션 알림
 function showAlert(menu) {
-    alert(`${menu} 기능은 없습니다! 이건 장난용 페이지거든요 ㅋㅋㅋ`);
+    alert(`${menu} 서비스는 현재 준비 중입니다. 빠른 시일 내에 제공될 예정이니 양해 부탁드립니다.`);
 }
 
 // 에러 메시지 표시
