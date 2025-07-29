@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>김제형 생일선물 프로젝트</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-container">
+            <div class="logo">FundMe <span style="font-size: 0.7rem; color: #718096; font-weight: 400;">(장난용)</span></div>
+            <div class="nav-links">
+                <a href="#" onclick="showAlert('둘러보기')">둘러보기</a>
+                <a href="#" onclick="showAlert('프로젝트 시작')">프로젝트 시작</a>
+                <a href="#" onclick="showAlert('로그인')">로그인</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="project-header">
+                <div class="project-image" onclick="uploadImage()">
+                    <span id="projectImageContent">📷</span>
+                    <input type="file" id="imageInput" class="hidden-input" accept="image/*" onchange="handleImageUpload(event)">
+                </div>
+            </div>
+
+            <div class="project-info">
+                <h1 class="project-title">김제형 생일선물 프로젝트</h1>
+                <p class="project-subtitle">소중한 사람들과 함께 만드는 특별한 생일, 작은 마음이 모여 큰 선물이 되기를</p>
+
+                <div class="creator-info">
+                    <div class="creator-avatar">🎂</div>
+                    <div class="creator-details">
+                        <h3>김제형</h3>
+                        <p>프로젝트 메이커 • 첫 번째 프로젝트</p>
+                    </div>
+                </div>
+
+                <div class="project-description">
+                    <p>생일선물을 갖고 싶지만, 항상 애매하게 비싼 것들뿐이라 누군가 한 명에게 사달라고 할 수는 없었습니다.</p>
+                    <br>
+                    <p>그래서 가족, 친구 여러분의 한 푼 한 푼을 모아서 선물을 사고자 합니다!</p>
+                    <br>
+                    <p>선물을 사주신다면 <strong>기부증서를 발급</strong>해드리고, 그 선물에 대해서 언제든지 자랑스러워할 수 있으며, 집에 오시면 구경도 시켜드리겠습니다. 😊</p>
+                </div>
+
+                <div class="funding-goals">
+                    <h2 class="goals-title">펀딩 목표</h2>
+                    <div class="goal-item" id="goal1">
+                        <div class="goal-amount">200,000원</div>
+                        <div class="goal-description">🎧 에어팟 프로 - 음악과 함께하는 일상을 위해</div>
+                        <div class="goal-image">🎧</div>
+                    </div>
+                    <div class="goal-item" id="goal2">
+                        <div class="goal-amount">300,000원</div>
+                        <div class="goal-description">👟 새 운동화 + 에어팟 - 건강한 라이프스타일 시작</div>
+                        <div class="goal-image">👟</div>
+                    </div>
+                    <div class="goal-item" id="goal3">
+                        <div class="goal-amount">500,000원</div>
+                        <div class="goal-description">📱 아이패드 + 모든 선물 - 창작과 학습의 도구까지</div>
+                        <div class="goal-image">📱</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="funding-card">
+                <div class="funding-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalAmount">로딩중...</div>
+                        <div class="stat-label">현재 모금액 (원)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="supporterCount">로딩중...</div>
+                        <div class="stat-label">후원자 수</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span id="progressPercent">0%</span>
+                        <span>목표: 500,000원</span>
+                    </div>
+                </div>
+
+                <div class="days-left">
+                    <div class="days-number">15</div>
+                    <div class="days-label">일 남음</div>
+                </div>
+
+                <div class="support-form">
+                    <div class="notice-box">
+                        <strong>⚠️ 주의사항</strong><br>
+                        이 페이지는 장난용 페이지입니다! 실제 결제는 이뤄지지 않으며, 개인정보도 수집되지 않습니다. 친구들과의 재미를 위한 용도로만 사용해주세요 😊
+                    </div>
+                    
+                    <div class="guide-box">
+                        <strong>💡 실제 후원 방법</strong><br>
+                        실제 결제는 되지 않습니다! 진짜 후원하고 싶으시면 본인이 김제형에게 계좌이체하고 여기에 댓글 달아주시면 됩니다 ㅋㅋㅋ 🏦✨
+                    </div>
+                    
+                    <h3 class="form-title">프로젝트 후원하기</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">후원 금액</label>
+                        <div class="amount-options">
+                            <div class="amount-option" data-amount="10000">10,000원</div>
+                            <div class="amount-option" data-amount="20000">20,000원</div>
+                            <div class="amount-option" data-amount="30000">30,000원</div>
+                            <div class="amount-option" data-amount="50000">50,000원</div>
+                        </div>
+                        <input type="number" class="form-input" id="customAmount" placeholder="직접 입력 (원)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">닉네임</label>
+                        <input type="text" class="form-input" id="nickname" placeholder="후원자 닉네임">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">응원 메시지</label>
+                        <textarea class="form-textarea" id="message" rows="3" placeholder="생일 축하 메시지를 남겨주세요!"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">삭제용 비밀번호 (4자리)</label>
+                        <input type="password" class="form-input" id="deletePassword" placeholder="댓글 삭제시 필요한 비밀번호" maxlength="4">
+                    </div>
+
+                    <button class="submit-btn" onclick="addSupporter()" id="submitBtn">후원하기</button>
+                </div>
+            </div>
+
+            <div class="supporters-section">
+                <h3 class="supporters-title">후원자 현황</h3>
+                <div id="supportersList">
+                    <div class="loading">로딩중...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
