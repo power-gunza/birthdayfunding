@@ -8,149 +8,224 @@ let totalAmount = 0;
 let supporterCount = 0;
 const targetAmount = 1000000;
 
-document.addEventListener('DOMContentLoaded', function () {
-  loadSupporters();
-  initAmountOptions();
+document.addEventListener('DOMContentLoaded', function() {
+    loadSupporters();
+    initAmountOptions();
 });
 
 async function loadSupporters() {
-  const { data, error } = await supabase.from('supporters').select('*').order('id', { ascending: false });
+    try {
+        const { data, error } = await supabase
+            .from('supporters')
+            .select('*')
+            .order('id', { ascending: false });
 
-  if (error) {
-    console.error('후원자 로드 오류:', error);
-    showError('데이터를 불러오는데 실패했습니다.');
-    return;
-  }
+        if (error) throw error;
 
-  const supporters = data || [];
-  supporterCount = supporters.length;
-  totalAmount = supporters.reduce((sum, s) => sum + s.amount, 0);
+        totalAmount = data.reduce((sum, s) => sum + s.amount, 0);
+        supporterCount = data.length;
 
-  updateStats();
-  renderSupporters(supporters);
+        updateStats();
+        renderSupporters(data);
+    } catch (error) {
+        console.error('후원자 로드 오류:', error);
+        showError('데이터를 불러오는데 실패했습니다.');
+    }
 }
 
 function updateStats() {
-  document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
-  document.getElementById('supporterCount').textContent = supporterCount;
+    document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
+    document.getElementById('supporterCount').textContent = supporterCount;
 
-  const percentage = Math.min((totalAmount / targetAmount) * 100, 100);
-  document.getElementById('progressFill').style.width = percentage + '%';
-  document.getElementById('progressPercent').textContent = Math.round(percentage) + '%';
+    const percentage = Math.min((totalAmount / targetAmount) * 100, 100);
+    document.getElementById('progressFill').style.width = percentage + '%';
+    document.getElementById('progressPercent').textContent = Math.round(percentage) + '%';
 
-  for (let i = 1; i <= 7; i++) {
-    const goal = document.getElementById(`goal${i}`);
-    const goalAmount = parseInt(goal.querySelector('.goal-amount').textContent.replace(/[^0-9]/g, ''));
-    if (totalAmount >= goalAmount) {
-      goal.classList.add('achieved');
+    updateGoalStatus(1, 100000);
+    updateGoalStatus(2, 200000);
+    updateGoalStatus(3, 300000);
+    updateGoalStatus(4, 400000);
+    updateGoalStatus(5, 500000);
+    updateGoalStatus(6, 700000);
+    updateGoalStatus(7, 1000000);
+}
+
+function updateGoalStatus(goalNumber, targetAmount) {
+    const goalElement = document.getElementById(`goal${goalNumber}`);
+    if (totalAmount >= targetAmount) {
+        goalElement.classList.add('achieved');
     } else {
-      goal.classList.remove('achieved');
+        goalElement.classList.remove('achieved');
     }
-  }
 }
 
 function renderSupporters(supporters) {
-  const html = supporters.length === 0
-    ? '<div class="no-supporters">아직 후원자가 없습니다.</div>'
-    : supporters.map(s => `
-      <div class="supporter-item" data-id="${s.id}">
-        <div class="supporter-info">
-          <div class="supporter-name">${escapeHtml(s.nickname)}</div>
-          <div class="supporter-message">${escapeHtml(s.message)}</div>
-          <div class="verification-badge">✓ 후원 완료</div>
-        </div>
-        <div class="supporter-amount">${s.amount.toLocaleString()}원</div>
-        <button class="delete-btn" onclick="deleteSupporter(${s.id})">삭제</button>
-      </div>
-    `).join('');
+    const html = getSupportersHTML(supporters);
 
-  const list = document.getElementById('supportersList');
-  if (list) list.innerHTML = html;
+    const supportersList = document.getElementById('supportersList');
+    const mainSupportersList = document.getElementById('mainSupportersList');
+
+    if (supportersList) supportersList.innerHTML = html;
+    if (mainSupportersList) mainSupportersList.innerHTML = html;
+}
+
+function getSupportersHTML(supporters) {
+    if (supporters.length === 0) {
+        return '<div class="no-supporters">아직 후원자가 없습니다.</div>';
+    }
+
+    return supporters.map(supporter => `
+        <div class="supporter-item" data-id="${supporter.id}">
+            <div class="supporter-info">
+                <div class="supporter-name">${escapeHtml(supporter.nickname)}</div>
+                <div class="supporter-message">${escapeHtml(supporter.message)}</div>
+                <div class="verification-badge">✓ 후원 완료</div>
+            </div>
+            <div class="supporter-amount">${supporter.amount.toLocaleString()}원</div>
+            <button class="delete-btn" onclick="deleteSupporter(${supporter.id})">삭제</button>
+        </div>
+    `).join('');
+}
+
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+
+    event.target.classList.add('active');
+    document.getElementById(tabName + '-panel').classList.add('active');
 }
 
 function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function initAmountOptions() {
-  const options = document.querySelectorAll('.amount-option');
-  options.forEach(option => {
-    option.addEventListener('click', function () {
-      options.forEach(o => o.classList.remove('selected'));
-      this.classList.add('selected');
-      document.getElementById('customAmount').value = this.dataset.amount;
+    const amountOptions = document.querySelectorAll('.amount-option');
+    amountOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            amountOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('customAmount').value = this.dataset.amount;
+        });
     });
-  });
 }
 
 async function addSupporter() {
-  const nickname = document.getElementById('nickname').value.trim();
-  const amount = parseInt(document.getElementById('customAmount').value);
-  const message = document.getElementById('message').value.trim();
-  const password = document.getElementById('deletePassword').value.trim();
+    const nickname = document.getElementById('nickname').value.trim();
+    const amount = parseInt(document.getElementById('customAmount').value);
+    const message = document.getElementById('message').value.trim();
+    const password = document.getElementById('deletePassword').value.trim();
 
-  if (!nickname || !amount || !message || !password) return showError('모든 항목을 입력해주세요!');
-  if (amount <= 0) return showError('올바른 금액을 입력해주세요!');
-  if (password.length !== 4) return showError('삭제용 비밀번호는 4자리로 입력해주세요!');
+    if (!nickname || !amount || !message || !password) {
+        showError('모든 항목을 입력해주세요!');
+        return;
+    }
 
-  const submitBtn = document.getElementById('submitBtn');
-  submitBtn.disabled = true;
-  submitBtn.textContent = '후원 중...';
+    if (amount <= 0) {
+        showError('올바른 금액을 입력해주세요!');
+        return;
+    }
 
-  const { data, error } = await supabase.from('supporters').insert([{
-    nickname,
-    amount,
-    message,
-    password
-  }]);
+    if (password.length !== 4) {
+        showError('삭제용 비밀번호는 4자리로 입력해주세요!');
+        return;
+    }
 
-  if (error) {
-    showError('후원에 실패했습니다.');
-    console.error(error);
-  } else {
-    showSuccess('후원 감사합니다!');
-    resetForm();
-    loadSupporters();
-  }
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = '후원 중...';
 
-  submitBtn.disabled = false;
-  submitBtn.textContent = '후원하기';
+    try {
+        const { error } = await supabase.from('supporters').insert([{ nickname, amount, message, password }]);
+
+        if (error) throw error;
+
+        await loadSupporters();
+        resetForm();
+        showSuccess('후원해주셔서 감사합니다!\n(물론 가짜 후원이지만요 ㅋㅋㅋ)');
+    } catch (error) {
+        console.error('후원 오류:', error);
+        showError(error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '후원하기';
+    }
 }
 
-async function deleteSupporter(id) {
-  const password = prompt('삭제용 비밀번호를 입력하세요:');
-  if (!password) return;
+async function deleteSupporter(supporterId) {
+    const password = prompt('삭제용 비밀번호를 입력하세요:');
+    if (!password) return;
 
-  const { data, error } = await supabase.from('supporters').select('password').eq('id', id).single();
-  if (error || !data) return showError('삭제 대상이 존재하지 않거나 오류가 발생했습니다.');
+    try {
+        const { data, error } = await supabase.from('supporters').select('password').eq('id', supporterId).single();
+        if (error || !data || data.password !== password) {
+            showError('비밀번호가 틀렸거나 삭제할 수 없습니다.');
+            return;
+        }
 
-  if (data.password !== password) return showError('비밀번호가 일치하지 않습니다.');
+        const { error: deleteError } = await supabase.from('supporters').delete().eq('id', supporterId);
+        if (deleteError) throw deleteError;
 
-  const { error: deleteError } = await supabase.from('supporters').delete().eq('id', id);
-  if (deleteError) {
-    console.error(deleteError);
-    showError('삭제 실패');
-  } else {
-    showSuccess('삭제 완료');
-    loadSupporters();
-  }
+        await loadSupporters();
+        showSuccess('삭제되었습니다.');
+    } catch (error) {
+        console.error('삭제 오류:', error);
+        showError(error.message);
+    }
 }
 
 function resetForm() {
-  document.getElementById('nickname').value = '';
-  document.getElementById('customAmount').value = '';
-  document.getElementById('message').value = '';
-  document.getElementById('deletePassword').value = '';
-  document.querySelectorAll('.amount-option').forEach(o => o.classList.remove('selected'));
+    document.getElementById('nickname').value = '';
+    document.getElementById('customAmount').value = '';
+    document.getElementById('message').value = '';
+    document.getElementById('deletePassword').value = '';
+    document.querySelectorAll('.amount-option').forEach(opt => opt.classList.remove('selected'));
 }
 
-function showError(msg) {
-  alert('❌ ' + msg);
+function uploadImage() {
+    document.getElementById('imageInput').click();
 }
 
-function showSuccess(msg) {
-  alert('✅ ' + msg);
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '50%';
+
+            const projectImage = document.querySelector('.project-image');
+            projectImage.innerHTML = '';
+            projectImage.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function showAlert(menu) {
+    alert(`${menu} 서비스는 현재 준비 중입니다. 빠른 시일 내에 제공될 예정이니 양해 부탁드립니다.`);
+}
+
+function showError(message) {
+    alert('❌ ' + message);
+}
+
+function showSuccess(message) {
+    alert('✅ ' + message);
+}
+
+function formatNumber(num) {
+    return num.toLocaleString();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR');
 }
 </script>
