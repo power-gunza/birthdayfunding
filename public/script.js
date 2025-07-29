@@ -29,56 +29,53 @@ async function loadSupporters() {
     }
 }
 
-// 후원자 추가 (Google Sheets)
+// POST 요청: JSON 말고 폼데이터 방식
 async function addSupporter() {
-    const nickname = document.getElementById('nickname').value.trim();
-    const amount = parseInt(document.getElementById('customAmount').value);
-    const message = document.getElementById('message').value.trim();
-    const password = document.getElementById('deletePassword').value.trim();
+  const nickname = document.getElementById('nickname').value.trim();
+  const amount = parseInt(document.getElementById('customAmount').value);
+  const message = document.getElementById('message').value.trim();
+  const password = document.getElementById('deletePassword').value.trim();
 
-    if (!nickname || !amount || !message || !password) {
-        showError('모든 항목을 입력해주세요!');
-        return;
+  if (!nickname || !amount || !message || !password) {
+    showError('모든 항목을 입력해주세요!');
+    return;
+  }
+
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '후원 중...';
+
+  const form = new URLSearchParams();
+  form.append('nickname', nickname);
+  form.append('amount', amount);
+  form.append('message', message);
+  form.append('password', password);
+
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: form
+    });
+
+    const result = await res.json();
+
+    if (!result.success) {
+      throw new Error('후원 저장 실패');
     }
 
-    if (amount <= 0) {
-        showError('올바른 금액을 입력해주세요!');
-        return;
-    }
-
-    if (password.length !== 4) {
-        showError('삭제용 비밀번호는 4자리로 입력해주세요!');
-        return;
-    }
-
-    const submitBtn = document.getElementById('submitBtn');
-    submitBtn.disabled = true;
-    submitBtn.textContent = '후원 중...';
-
-    try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, amount, message, password })
-        });
-
-        const result = await res.json();
-
-        if (!result.success) {
-            throw new Error('후원 저장 실패');
-        }
-
-        await loadSupporters();
-        resetForm();
-        showSuccess('후원해주셔서 감사합니다!');
-    } catch (error) {
-        console.error('후원 오류:', error);
-        showError('저장 중 오류가 발생했습니다.');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '후원하기';
-    }
+    await loadSupporters();
+    resetForm();
+    showSuccess('후원해주셔서 감사합니다!');
+  } catch (e) {
+    console.error('후원 오류 (Google Sheets):', e);
+    showError('저장 중 오류가 발생했습니다.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '후원하기';
+  }
 }
+
+
 
 // 통계 업데이트
 function updateStats() {
