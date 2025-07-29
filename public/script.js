@@ -1,26 +1,26 @@
+// Google Sheets Web App URL
+const API_URL = 'https://script.google.com/macros/s/AKfycbzQxvyZdUd27yDquryUmiOpx8Q4t76zYND0Udh7izrdRwlcjg2DSNKzf6ysWU5DB8FdGQ/exec';
+
 // 전역 변수
 let totalAmount = 0;
 let supporterCount = 0;
-const targetAmount = 1000000; // 100만원으로 변경
+const targetAmount = 1000000;
 
 // 페이지 로드시 초기화
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadSupporters();
     initAmountOptions();
 });
 
-// 후원자 데이터 로드
+// 후원자 데이터 불러오기 (Google Sheets)
 async function loadSupporters() {
     try {
-        const response = await fetch('/api/supporters');
-        if (!response.ok) {
-            throw new Error('데이터를 불러올 수 없습니다.');
-        }
-        
-        const data = await response.json();
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
         totalAmount = data.totalAmount;
         supporterCount = data.supporterCount;
-        
+
         updateStats();
         renderSupporters(data.supporters);
     } catch (error) {
@@ -29,110 +29,13 @@ async function loadSupporters() {
     }
 }
 
-// 통계 업데이트
-function updateStats() {
-    document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
-    document.getElementById('supporterCount').textContent = supporterCount;
-    
-    const percentage = Math.min((totalAmount / targetAmount) * 100, 100);
-    document.getElementById('progressFill').style.width = percentage + '%';
-    document.getElementById('progressPercent').textContent = Math.round(percentage) + '%';
-
-    // 목표 달성 체크 (7개 목표)
-    updateGoalStatus(1, 100000);   // 10만원: 목어깨 마사지기
-    updateGoalStatus(2, 200000);   // 20만원: 가누다 경추베개
-    updateGoalStatus(3, 300000);   // 30만원: 앰프
-    updateGoalStatus(4, 400000);   // 40만원: 다이슨 에어랩
-    updateGoalStatus(5, 500000);   // 50만원: 로봇청소기
-    updateGoalStatus(6, 700000);   // 70만원: 닌텐도 스위치2
-    updateGoalStatus(7, 1000000);  // 100만원: 스피커
-}
-
-// 목표 달성 상태 업데이트
-function updateGoalStatus(goalNumber, targetAmount) {
-    const goalElement = document.getElementById(`goal${goalNumber}`);
-    if (totalAmount >= targetAmount) {
-        goalElement.classList.add('achieved');
-    } else {
-        goalElement.classList.remove('achieved');
-    }
-}
-
-// 후원자 목록 렌더링
-function renderSupporters(supporters) {
-    const supportersList = document.getElementById('supportersList');
-    const mainSupportersList = document.getElementById('mainSupportersList');
-    
-    const supportersHTML = getSupportersHTML(supporters);
-    
-    // 사이드바 후원자 목록 업데이트
-    if (supportersList) {
-        supportersList.innerHTML = supportersHTML;
-    }
-    
-    // 메인 탭 후원자 목록 업데이트
-    if (mainSupportersList) {
-        mainSupportersList.innerHTML = supportersHTML;
-    }
-}
-
-// 후원자 HTML 생성
-function getSupportersHTML(supporters) {
-    if (supporters.length === 0) {
-        return '<div class="no-supporters">아직 후원자가 없습니다.</div>';
-    }
-    
-    return supporters.map(supporter => `
-        <div class="supporter-item" data-id="${supporter.id}">
-            <div class="supporter-info">
-                <div class="supporter-name">${escapeHtml(supporter.nickname)}</div>
-                <div class="supporter-message">${escapeHtml(supporter.message)}</div>
-                <div class="verification-badge">✓ 후원 완료</div>
-            </div>
-            <div class="supporter-amount">${supporter.amount.toLocaleString()}원</div>
-            <button class="delete-btn" onclick="deleteSupporter(${supporter.id})">삭제</button>
-        </div>
-    `).join('');
-}
-
-// 탭 전환 함수
-function switchTab(tabName) {
-    // 모든 탭 버튼과 패널 비활성화
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
-    
-    // 선택된 탭 활성화
-    event.target.classList.add('active');
-    document.getElementById(tabName + '-panel').classList.add('active');
-}
-
-// HTML 이스케이핑
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// 금액 옵션 초기화
-function initAmountOptions() {
-    const amountOptions = document.querySelectorAll('.amount-option');
-    amountOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            amountOptions.forEach(opt => opt.classList.remove('selected'));
-            this.classList.add('selected');
-            document.getElementById('customAmount').value = this.dataset.amount;
-        });
-    });
-}
-
-// 새 후원자 추가
+// 후원자 추가 (Google Sheets)
 async function addSupporter() {
     const nickname = document.getElementById('nickname').value.trim();
     const amount = parseInt(document.getElementById('customAmount').value);
     const message = document.getElementById('message').value.trim();
     const password = document.getElementById('deletePassword').value.trim();
 
-    // 유효성 검사
     if (!nickname || !amount || !message || !password) {
         showError('모든 항목을 입력해주세요!');
         return;
@@ -148,155 +51,134 @@ async function addSupporter() {
         return;
     }
 
-    // 버튼 비활성화
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.textContent = '후원 중...';
 
     try {
-        const response = await fetch('/api/supporters', {
+        const res = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nickname,
-                amount,
-                message,
-                password
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname, amount, message, password })
         });
 
-        const result = await response.json();
+        const result = await res.json();
 
-        if (!response.ok) {
-            throw new Error(result.error || '후원에 실패했습니다.');
+        if (!result.success) {
+            throw new Error('후원 저장 실패');
         }
 
-        // 성공시 통계 업데이트
-        totalAmount = result.totalAmount;
-        supporterCount = result.supporterCount;
-        updateStats();
-
-        // 후원자 목록 새로고침
         await loadSupporters();
-
-        // 폼 초기화
         resetForm();
-
-        // 성공 메시지
-        showSuccess('후원해주셔서 감사합니다! 🎉\n(물론 가짜 후원이지만요 ㅋㅋㅋ)');
-
+        showSuccess('후원해주셔서 감사합니다!');
     } catch (error) {
         console.error('후원 오류:', error);
-        showError(error.message);
+        showError('저장 중 오류가 발생했습니다.');
     } finally {
-        // 버튼 다시 활성화
         submitBtn.disabled = false;
         submitBtn.textContent = '후원하기';
     }
 }
 
-// 후원자 삭제
-async function deleteSupporter(supporterId) {
-    const password = prompt('삭제용 비밀번호를 입력하세요:');
-    
-    if (!password) {
-        return;
-    }
+// 통계 업데이트
+function updateStats() {
+    document.getElementById('totalAmount').textContent = totalAmount.toLocaleString();
+    document.getElementById('supporterCount').textContent = supporterCount;
 
-    try {
-        const response = await fetch(`/api/supporters/${supporterId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ password })
-        });
+    const percentage = Math.min((totalAmount / targetAmount) * 100, 100);
+    document.getElementById('progressFill').style.width = percentage + '%';
+    document.getElementById('progressPercent').textContent = Math.round(percentage) + '%';
 
-        const result = await response.json();
+    updateGoalStatus(1, 100000);
+    updateGoalStatus(2, 200000);
+    updateGoalStatus(3, 300000);
+    updateGoalStatus(4, 400000);
+    updateGoalStatus(5, 500000);
+    updateGoalStatus(6, 700000);
+    updateGoalStatus(7, 1000000);
+}
 
-        if (!response.ok) {
-            throw new Error(result.error || '삭제에 실패했습니다.');
-        }
-
-        // 성공시 통계 업데이트
-        totalAmount = result.totalAmount;
-        supporterCount = result.supporterCount;
-        updateStats();
-
-        // 후원자 목록 새로고침
-        await loadSupporters();
-
-        // 성공 메시지
-        showSuccess(result.message);
-
-    } catch (error) {
-        console.error('삭제 오류:', error);
-        showError(error.message);
+// 목표 달성 상태 업데이트
+function updateGoalStatus(goalNumber, target) {
+    const goalElement = document.getElementById(`goal${goalNumber}`);
+    if (totalAmount >= target) {
+        goalElement.classList.add('achieved');
+    } else {
+        goalElement.classList.remove('achieved');
     }
 }
 
-// 폼 초기화
+// 후원자 목록 렌더링
+function renderSupporters(supporters) {
+    const supportersList = document.getElementById('supportersList');
+    const mainSupportersList = document.getElementById('mainSupportersList');
+
+    const html = getSupportersHTML(supporters);
+
+    if (supportersList) supportersList.innerHTML = html;
+    if (mainSupportersList) mainSupportersList.innerHTML = html;
+}
+
+// 후원자 HTML 생성
+function getSupportersHTML(supporters) {
+    if (!supporters || supporters.length === 0) {
+        return '<div class="no-supporters">아직 후원자가 없습니다.</div>';
+    }
+
+    return supporters.map(s => `
+        <div class="supporter-item">
+            <div class="supporter-info">
+                <div class="supporter-name">${escapeHtml(s.nickname)}</div>
+                <div class="supporter-message">${escapeHtml(s.message)}</div>
+                <div class="verification-badge">✓ 후원 완료</div>
+            </div>
+            <div class="supporter-amount">${Number(s.amount).toLocaleString()}원</div>
+        </div>
+    `).join('');
+}
+
+// 금액 옵션 초기화
+function initAmountOptions() {
+    const options = document.querySelectorAll('.amount-option');
+    options.forEach(option => {
+        option.addEventListener('click', function () {
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            document.getElementById('customAmount').value = this.dataset.amount;
+        });
+    });
+}
+
+// 입력 폼 초기화
 function resetForm() {
     document.getElementById('nickname').value = '';
     document.getElementById('customAmount').value = '';
     document.getElementById('message').value = '';
     document.getElementById('deletePassword').value = '';
-    
-    // 선택된 금액 옵션 해제
-    document.querySelectorAll('.amount-option').forEach(opt => {
-        opt.classList.remove('selected');
-    });
+    document.querySelectorAll('.amount-option').forEach(opt => opt.classList.remove('selected'));
 }
 
-// 이미지 업로드
-function uploadImage() {
-    document.getElementById('imageInput').click();
+// HTML 이스케이프
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
-function handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.style.width = '100%';
-            img.style.height = '100%';
-            img.style.objectFit = 'cover';
-            img.style.borderRadius = '50%';
-            
-            const projectImage = document.querySelector('.project-image');
-            projectImage.innerHTML = '';
-            projectImage.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    }
+// 알림 함수들
+function showError(msg) {
+    alert('❌ ' + msg);
 }
 
-// 네비게이션 알림
-function showAlert(menu) {
-    alert(`${menu} 서비스는 현재 준비 중입니다. 빠른 시일 내에 제공될 예정이니 양해 부탁드립니다.`);
+function showSuccess(msg) {
+    alert('✅ ' + msg);
 }
 
-// 에러 메시지 표시
-function showError(message) {
-    alert('❌ ' + message);
-}
+// (선택) 탭 전환 함수
+function switchTab(event, tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
 
-// 성공 메시지 표시
-function showSuccess(message) {
-    alert('✅ ' + message);
-}
-
-// 숫자 포맷팅
-function formatNumber(num) {
-    return num.toLocaleString();
-}
-
-// 날짜 포맷팅
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR');
+    event.target.classList.add('active');
+    document.getElementById(tabName + '-panel').classList.add('active');
 }
