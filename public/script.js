@@ -61,13 +61,28 @@ function updateGoalStatus(goalNumber, targetAmount) {
 // 후원자 목록 렌더링
 function renderSupporters(supporters) {
     const supportersList = document.getElementById('supportersList');
+    const mainSupportersList = document.getElementById('mainSupportersList');
     
-    if (supporters.length === 0) {
-        supportersList.innerHTML = '<div class="no-supporters">아직 후원자가 없습니다.</div>';
-        return;
+    const supportersHTML = getSupportersHTML(supporters);
+    
+    // 사이드바 후원자 목록 업데이트
+    if (supportersList) {
+        supportersList.innerHTML = supportersHTML;
     }
     
-    supportersList.innerHTML = supporters.map(supporter => `
+    // 메인 탭 후원자 목록 업데이트
+    if (mainSupportersList) {
+        mainSupportersList.innerHTML = supportersHTML;
+    }
+}
+
+// 후원자 HTML 생성
+function getSupportersHTML(supporters) {
+    if (supporters.length === 0) {
+        return '<div class="no-supporters">아직 후원자가 없습니다.</div>';
+    }
+    
+    return supporters.map(supporter => `
         <div class="supporter-item" data-id="${supporter.id}">
             <div class="supporter-info">
                 <div class="supporter-name">${escapeHtml(supporter.nickname)}</div>
@@ -78,6 +93,17 @@ function renderSupporters(supporters) {
             <button class="delete-btn" onclick="deleteSupporter(${supporter.id})">삭제</button>
         </div>
     `).join('');
+}
+
+// 탭 전환 함수
+function switchTab(tabName) {
+    // 모든 탭 버튼과 패널 비활성화
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+    
+    // 선택된 탭 활성화
+    event.target.classList.add('active');
+    document.getElementById(tabName + '-panel').classList.add('active');
 }
 
 // HTML 이스케이핑
