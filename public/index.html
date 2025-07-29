@@ -1,15 +1,604 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>김제형 생일선물 프로젝트</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .nav {
+            background: white;
+            padding: 0 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #2d3748;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: #2b6cb0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .project-header {
+            position: relative;
+            height: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .project-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border: 4px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .project-info {
+            padding: 30px;
+        }
+
+        .project-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #1a202c;
+        }
+
+        .project-subtitle {
+            font-size: 1.1rem;
+            color: #4a5568;
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .creator-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .creator-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .creator-details h3 {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .creator-details p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .project-description {
+            color: #4a5568;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .funding-goals {
+            margin-bottom: 30px;
+        }
+
+        .goals-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .goal-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .goal-item.achieved {
+            background: #f0fff4;
+            border-color: #38a169;
+            opacity: 1;
+        }
+
+        .goal-item.achieved::after {
+            content: '🎉 달성!';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #38a169;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .goal-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 5px;
+        }
+
+        .goal-item.achieved .goal-amount {
+            color: #38a169;
+        }
+
+        .goal-image-placeholder {
+            width: 100%;
+            height: 120px;
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 0.85rem;
+            margin-top: 8px;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .funding-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 100px;
+        }
+
+        .funding-stats {
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            margin-bottom: 15px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .progress-container {
+            margin: 25px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3182ce, #2c5aa0);
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: #4a5568;
+            font-size: 0.85rem;
+        }
+
+        .days-left {
+            background: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .days-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .days-label {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .support-form {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 25px;
+        }
+
+        .notice-box, .guide-box {
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+
+        .notice-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .guide-box {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            color: #234e52;
+        }
+
+        .form-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3182ce;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .amount-option {
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .amount-option:hover {
+            border-color: #3182ce;
+        }
+
+        .amount-option.selected {
+            border-color: #3182ce;
+            background: #ebf8ff;
+            color: #2c5aa0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(90deg, #3182ce, #2c5aa0);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .supporters-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .supporters-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2d3748;
+        }
+
+        .supporter-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .supporter-item:last-child {
+            border-bottom: none;
+        }
+
+        .supporter-info {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .supporter-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+        }
+
+        .supporter-message {
+            color: #4a5568;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .supporter-amount {
+            font-weight: 700;
+            color: #3182ce;
+            font-size: 1rem;
+            white-space: nowrap;
+        }
+
+        .verification-badge {
+            background: #38a169;
+            color: white;
+            font-size: 0.75rem;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 60px;
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
+        .loading {
+            text-align: center;
+            color: #718096;
+            padding: 20px;
+        }
+
+        .no-supporters {
+            text-align: center;
+            color: #718096;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* 모바일 반응형 */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 15px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .project-title {
+                font-size: 1.6rem;
+            }
+
+            .project-header {
+                height: 250px;
+            }
+
+            .project-image {
+                width: 120px;
+                height: 120px;
+                font-size: 2.5rem;
+            }
+
+            .project-info {
+                padding: 20px;
+            }
+
+            .funding-card {
+                position: static;
+                padding: 20px;
+            }
+
+            .supporters-section {
+                padding: 20px;
+            }
+
+            .amount-options {
+                grid-template-columns: 1fr;
+            }
+
+            .supporter-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .supporter-amount {
+                margin-top: 8px;
+                margin-left: 0;
+            }
+
+            .delete-btn {
+                position: static;
+                margin-top: 8px;
+                align-self: flex-start;
+            }
+
+            .supporter-info {
+                margin-right: 0;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-title {
+                font-size: 1.4rem;
+            }
+
+            .project-header {
+                height: 200px;
+            }
+
+            .project-image {
+                width: 100px;
+                height: 100px;
+                font-size: 2rem;
+            }
+
+            .stat-number {
+                font-size: 1.5rem;
+            }
+
+            .days-number {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="nav">
         <div class="nav-container">
-            <div class="logo">FundMe <span style="font-size: 0.7rem; color: #718096; font-weight: 400;">(장난용)</span></div>
+            <div class="logo">GiftFund <span style="font-size: 0.7rem; color: #718096; font-weight: 400;">(개인 펀딩)</span></div>
             <div class="nav-links">
                 <a href="#" onclick="showAlert('둘러보기')">둘러보기</a>
                 <a href="#" onclick="showAlert('프로젝트 시작')">프로젝트 시작</a>
@@ -21,10 +610,7 @@
     <div class="container">
         <div class="main-content">
             <div class="project-header">
-                <div class="project-image" onclick="uploadImage()">
-                    <span id="projectImageContent">📷</span>
-                    <input type="file" id="imageInput" class="hidden-input" accept="image/*" onchange="handleImageUpload(event)">
-                </div>
+                <div class="project-image">🎂</div>
             </div>
 
             <div class="project-info">
@@ -50,19 +636,39 @@
                 <div class="funding-goals">
                     <h2 class="goals-title">펀딩 목표</h2>
                     <div class="goal-item" id="goal1">
-                        <div class="goal-amount">200,000원</div>
-                        <div class="goal-description">🎧 에어팟 프로 - 음악과 함께하는 일상을 위해</div>
-                        <div class="goal-image">🎧</div>
+                        <div class="goal-amount">100,000원</div>
+                        <div class="goal-description">목어깨 마사지기</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
                     </div>
                     <div class="goal-item" id="goal2">
-                        <div class="goal-amount">300,000원</div>
-                        <div class="goal-description">👟 새 운동화 + 에어팟 - 건강한 라이프스타일 시작</div>
-                        <div class="goal-image">👟</div>
+                        <div class="goal-amount">200,000원</div>
+                        <div class="goal-description">가누다 경추베개</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
                     </div>
                     <div class="goal-item" id="goal3">
+                        <div class="goal-amount">300,000원</div>
+                        <div class="goal-description">앰프</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
+                    </div>
+                    <div class="goal-item" id="goal4">
+                        <div class="goal-amount">400,000원</div>
+                        <div class="goal-description">다이슨 에어랩</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
+                    </div>
+                    <div class="goal-item" id="goal5">
                         <div class="goal-amount">500,000원</div>
-                        <div class="goal-description">📱 아이패드 + 모든 선물 - 창작과 학습의 도구까지</div>
-                        <div class="goal-image">📱</div>
+                        <div class="goal-description">로봇청소기</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
+                    </div>
+                    <div class="goal-item" id="goal6">
+                        <div class="goal-amount">700,000원</div>
+                        <div class="goal-description">닌텐도 스위치2</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
+                    </div>
+                    <div class="goal-item" id="goal7">
+                        <div class="goal-amount">1,000,000원</div>
+                        <div class="goal-description">스피커</div>
+                        <div class="goal-image-placeholder">이미지 자리</div>
                     </div>
                 </div>
             </div>
@@ -87,7 +693,7 @@
                     </div>
                     <div class="progress-text">
                         <span id="progressPercent">0%</span>
-                        <span>목표: 500,000원</span>
+                        <span>목표: 1,000,000원</span>
                     </div>
                 </div>
 
@@ -99,12 +705,12 @@
                 <div class="support-form">
                     <div class="notice-box">
                         <strong>⚠️ 주의사항</strong><br>
-                        이 페이지는 장난용 페이지입니다! 실제 결제는 이뤄지지 않으며, 개인정보도 수집되지 않습니다. 친구들과의 재미를 위한 용도로만 사용해주세요 😊
+                        이 페이지는 개인 펀딩 페이지입니다. 실제 결제 시스템은 연동되어 있지 않으며, 개인정보 수집은 하지 않습니다. 지인들과의 소통을 위한 용도로 사용해 주세요. 😊
                     </div>
                     
                     <div class="guide-box">
                         <strong>💡 실제 후원 방법</strong><br>
-                        실제 결제는 되지 않습니다! 진짜 후원하고 싶으시면 본인이 김제형에게 계좌이체하고 여기에 댓글 달아주시면 됩니다 ㅋㅋㅋ 🏦✨
+                        온라인 결제는 지원되지 않습니다. 실제 후원을 원하신다면 김제형에게 직접 연락 후 여기에 기록을 남겨주시면 됩니다. 🏦✨
                     </div>
                     
                     <h3 class="form-title">프로젝트 후원하기</h3>
